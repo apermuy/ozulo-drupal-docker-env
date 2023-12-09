@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+  database:
+    image: mysql:8.0.35-debian
+    container_name: mysql
+    restart: always
+    cpuset: "0-1"
+    mem_limit: "2g"
+    mem_reservation: "512m"
+    cpus: "1"
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}    
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}    
+    ports:
+      - '37306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - './volumes/mysql-data/db:/var/lib/mysql'
+      - './data/sql:/docker-entrypoint-initdb.d'
+    networks:
+      - internal
+
+  drupal:
+    image: drupal:php8.2-fpm-bookworm
+    container_name: drupal
+    depends_on:
+      - database
+    env_file:
+      - ./.env
+    restart: unless-stopped
+    networks:
+      - internal
+      - external
+    volumes:
+      - './volumes/ozulo-drupal10:/var/www/html'
+      - './config/drupal/settings.php:/var/www/html/sites/default/settings.php'
+    
+  webserver:
+    image: nginx:1.17.4-alpine
+    container_name: webserver
+    depends_on:
+      - drupal
+    restart: unless-stopped
+    ports:
+      - 8011:80
+    volumes:
+      - ./volumes/ozulo-drupal10:/var/www/html
+      - ./config/nginx:/etc/nginx/conf.d      
+    networks:
+      - external
+
+networks:
+  external:
+    driver: bridge
+  internal:
+    driver: bridge
