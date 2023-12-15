@@ -1,8 +1,11 @@
 <?php
 // https://blog.chrismitchellonline.com/posts/drupal-environment-variables/
+
 $dbName=getenv("MYSQL_DATABASE");
 $dbUser=getenv("MYSQL_USER");
 $dbPass=getenv("MYSQL_PASSWORD");
+$dbHost=getenv("MYSQL_HOST");
+$dbPort=getenv("MYSQL_PORT");
 
 
 $databases = array();
@@ -13,14 +16,15 @@ $settings['file_scan_ignore_directories'] = [
   'node_modules',
   'bower_components',
 ];
+$settings['hash_salt'] = 'ZD850J-aZXsL3pMnPUHROkg9tsxXlMh9v_ozNRStAimRZ0DmN3AWhMbjZz1wHXiazzKuJuHt-w';
 $settings['entity_update_batch_size'] = 50;
 $databases['default']['default'] = array (
   'database' => $dbName,
   'username' => $dbUser,
   'password' => $dbPass,
   'prefix' => '',
-  'host' => 'database',
-  'port' => '3306',
+  'host' => $dbHost,
+  'port' => $dbPort,
   'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
   'driver' => 'mysql',
 );

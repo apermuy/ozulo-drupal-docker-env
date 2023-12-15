@@ -2,7 +2,7 @@ version: '3.8'
 services:
   database:
     image: mysql:8.0.35-debian
-    container_name: mysql
+    container_name: mysql-ozulo
     restart: always
     cpuset: "0-1"
     mem_limit: "2g"
@@ -15,10 +15,8 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}    
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}    
-    ports:
-      - '37306:3306'
     expose:
-      - '3306'
+      - 3306
     volumes:
       - './volumes/mysql-data/db:/var/lib/mysql'
       - './data/sql:/docker-entrypoint-initdb.d'
@@ -26,8 +24,8 @@ services:
       - internal
 
   drupal:
-    image: drupal:php8.2-fpm-bookworm
-    container_name: drupal
+    image: chialab/php:8.2-fpm
+    container_name: drupal-ozulo
     depends_on:
       - database
     env_file:
@@ -41,8 +39,8 @@ services:
       - './config/drupal/settings.php:/var/www/html/sites/default/settings.php'
     
   webserver:
-    image: nginx:1.17.4-alpine
-    container_name: webserver
+    image: nginx:latest
+    container_name: webserver-ozulo
     depends_on:
       - drupal
     restart: unless-stopped
